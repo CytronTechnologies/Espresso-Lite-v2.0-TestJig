@@ -7,6 +7,8 @@ import time
 import array
 import serialESPCmd
 
+board_id = 0
+
 def startSerial(serial_port):
   print 'opening port: ', serial_port
   port = serial.Serial(serial_port, baudrate=115200, timeout=3.0)
@@ -21,8 +23,23 @@ def handlingSerialEvent(ser):
     if rpiReceiveCorrect(ser) == serialESPCmd.receiveCorrect:
       print 'Receive correct'
       isErr, val = rpiReceiveData(ser, cmd)
-      if not isErr:
+      if not isErr and val[0]==serialESPCmd.operationSuccessful:
         print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+        isErr, val = rpiReceiveData(ser, cmd)
+        if not isErr and len(val) == 3:
+          print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+          board_id = sum([ (val[x]<<(x<<3)) for x in range(0, len(val)) ])
+          print board_id
+        else:
+          print 'Fail to retrieve board ID'
+          retErr = 1
+          serialEventExit(ser)
+          return retErr
+      else:
+        print 'Timeout'
+        retErr = 1
+        serialEventExit(ser)
+        return retErr
     else:
       print 'Error'
       retErr = 1
@@ -34,9 +51,14 @@ def handlingSerialEvent(ser):
     rpiSendCmd(ser, cmd)
     if rpiReceiveCorrect(ser) == serialESPCmd.receiveCorrect:
       print 'Receive correct'
-      isErr, val = rpiReceiveData(ser, cmd)
-      if not isErr:
+      isErr, val = rpiReceiveData(ser, cmd, 10)
+      if not isErr and val[0]==serialESPCmd.operationSuccessful:
         print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+      else:
+        print 'Timeout'
+        retErr = 1
+        serialEventExit(ser)
+        return retErr
     else:
       print 'Error'
       retErr = 1
@@ -49,8 +71,13 @@ def handlingSerialEvent(ser):
     if rpiReceiveCorrect(ser) == serialESPCmd.receiveCorrect:
       print 'Receive correct'
       isErr, val = rpiReceiveData(ser, cmd)
-      if not isErr:
+      if not isErr and val[0]==serialESPCmd.operationSuccessful:
         print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+      else:
+        print 'Timeout'
+        retErr = 1
+        serialEventExit(ser)
+        return retErr
     else:
       print 'Error'
       retErr = 1
@@ -63,8 +90,13 @@ def handlingSerialEvent(ser):
     if rpiReceiveCorrect(ser) == serialESPCmd.receiveCorrect:
       print 'Receive correct'
       isErr, val = rpiReceiveData(ser, cmd)
-      if not isErr:
+      if not isErr and val[0]==serialESPCmd.operationSuccessful:
         print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+      else:
+        print 'Timeout'
+        retErr = 1
+        serialEventExit(ser)
+        return retErr
     else:
       print 'Error'
       retErr = 1
@@ -77,8 +109,13 @@ def handlingSerialEvent(ser):
     if rpiReceiveCorrect(ser) == serialESPCmd.receiveCorrect:
       print 'Receive correct'
       isErr, val = rpiReceiveData(ser, cmd)
-      if not isErr:
+      if not isErr and val[0]==serialESPCmd.operationSuccessful:
         print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+      else:
+        print 'Timeout'
+        retErr = 1
+        serialEventExit(ser)
+        return retErr
     else:
       print 'Error'
       retErr = 1
@@ -91,8 +128,13 @@ def handlingSerialEvent(ser):
     if rpiReceiveCorrect(ser) == serialESPCmd.receiveCorrect:
       print 'Receive correct'
       isErr, val = rpiReceiveData(ser, cmd)
-      if not isErr:
+      if not isErr and val[0]==serialESPCmd.operationSuccessful:
         print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+      else:
+        print 'Timeout'
+        retErr = 1
+        serialEventExit(ser)
+        return retErr
     else:
       print 'Error'
       retErr = 1
@@ -105,8 +147,13 @@ def handlingSerialEvent(ser):
     if rpiReceiveCorrect(ser) == serialESPCmd.receiveCorrect:
       print 'Receive correct'
       isErr, val = rpiReceiveData(ser, cmd)
-      if not isErr:
+      if not isErr and val[0]==serialESPCmd.operationSuccessful:
         print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+      else:
+        print 'Timeout'
+        retErr = 1
+        serialEventExit(ser)
+        return retErr
     else:
       print 'Error'
       retErr = 1
@@ -173,7 +220,8 @@ def rpiReceiveCorrect(ser):
        return _response
   return 0
 
-def rpiReceiveData(ser, cmd):
+def rpiReceiveData(ser, cmd, timeout=3):
+  ser.timeout = timeout
   _flag= 0
   _packet_len = 0
   _cmd = 0
