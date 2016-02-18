@@ -18,7 +18,7 @@ def handlingSerialEvent(ser):
 #Testphase 1 - Retrieve Info
     cmd = serialESPCmd.retrieveInfo
     rpiSendCmd(ser, cmd)
-    if rpiReceiveCorrect(ser) == chr(0x01):
+    if rpiReceiveCorrect(ser) == serialESPCmd.receiveCorrect:
       print 'Receive correct'
       isErr, val = rpiReceiveData(ser, cmd)
       if not isErr:
@@ -32,7 +32,7 @@ def handlingSerialEvent(ser):
 #Testphase 2 - Check module WiFi connection
     cmd = serialESPCmd.checkWiFiConnection
     rpiSendCmd(ser, cmd)
-    if rpiReceiveCorrect(ser) == chr(0x01):
+    if rpiReceiveCorrect(ser) == serialESPCmd.receiveCorrect:
       print 'Receive correct'
       isErr, val = rpiReceiveData(ser, cmd)
       if not isErr:
@@ -46,7 +46,7 @@ def handlingSerialEvent(ser):
 #Testphase 3 - Client Test
     cmd = serialESPCmd.clientTest
     rpiSendCmd(ser, cmd)
-    if rpiReceiveCorrect(ser) == chr(0x01):
+    if rpiReceiveCorrect(ser) == serialESPCmd.receiveCorrect:
       print 'Receive correct'
       isErr, val = rpiReceiveData(ser, cmd)
       if not isErr:
@@ -60,7 +60,7 @@ def handlingSerialEvent(ser):
 #Testphase 4 - Server Test
     cmd = serialESPCmd.serverTest
     rpiSendCmd(ser, cmd)
-    if rpiReceiveCorrect(ser) == chr(0x01):
+    if rpiReceiveCorrect(ser) == serialESPCmd.receiveCorrect:
       print 'Receive correct'
       isErr, val = rpiReceiveData(ser, cmd)
       if not isErr:
@@ -74,7 +74,7 @@ def handlingSerialEvent(ser):
 #Testphase 5 - SoftAP Test
     cmd = serialESPCmd.softAPTest
     rpiSendCmd(ser, cmd)
-    if rpiReceiveCorrect(ser) == chr(0x01):
+    if rpiReceiveCorrect(ser) == serialESPCmd.receiveCorrect:
       print 'Receive correct'
       isErr, val = rpiReceiveData(ser, cmd)
       if not isErr:
@@ -88,7 +88,7 @@ def handlingSerialEvent(ser):
 #Testphase 6 - Hardware Test
     cmd = serialESPCmd.checkBoardIO
     rpiSendCmd(ser, cmd)
-    if rpiReceiveCorrect(ser) == chr(0x01):
+    if rpiReceiveCorrect(ser) == serialESPCmd.receiveCorrect:
       print 'Receive correct'
       isErr, val = rpiReceiveData(ser, cmd)
       if not isErr:
@@ -102,7 +102,7 @@ def handlingSerialEvent(ser):
 #Testphase 7 - ReadyToQuit
     cmd = serialESPCmd.readyToQuit
     rpiSendCmd(ser, cmd)
-    if rpiReceiveCorrect(ser) == chr(0x01):
+    if rpiReceiveCorrect(ser) == serialESPCmd.receiveCorrect:
       print 'Receive correct'
       isErr, val = rpiReceiveData(ser, cmd)
       if not isErr:
@@ -162,7 +162,15 @@ def rpiReceiveCorrect(ser):
     if len(inByteString) == 5:
      #print 'receive success'
      #print inByteString[3].encode('hex')
-     return inByteString[3]
+     _header, _flag, _packet_len, _response, _checksum = [ord(inByteString[x]) for x in range(0, 5)]
+     #_header = ord(inByteString[0])
+     #_flag = ord(inByteString[1])
+     #_packet_len = ord(inByteString[2])
+     #_response = ord(inByteString[3])
+     #_checksum = ord(inByteString[4])
+     _cal_cs = (170 + _flag + _packet_len + _response) % 256
+     if _header == 0x5c and _flag == 0x30 and _packet_len == 1 and _checksum == _cal_cs: 
+       return _response
   return 0
 
 def rpiReceiveData(ser, cmd):
