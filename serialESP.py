@@ -13,33 +13,119 @@ def startSerial(serial_port):
   return handlingSerialEvent(port)
 
 def handlingSerialEvent(ser):
-#  try:
-    #data = array.array('i', (0 for x in range(0, 5)))
-    #data[3] = 0x45
+  retErr = 0
+  try:
+#Testphase 1 - Retrieve Info
     cmd = serialESPCmd.retrieveInfo
     rpiSendCmd(ser, cmd)
     if rpiReceiveCorrect(ser) == chr(0x01):
       print 'Receive correct'
-      val = rpiReceiveData(ser, cmd)
-      print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+      isErr, val = rpiReceiveData(ser, cmd)
+      if not isErr:
+        print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
     else:
       print 'Error'
-    
-    #while True:
-    #  inByte = ser.read()
-    #  if inByte:
-    #    val =  ord(inByte)
-    #    print "%02X" % val
-    #    if(inByte==chr(0x4d)):
-    #      break
-    print 'closing port: ', ser.port
-    ser.close()
-    return 0
+      retErr = 1
+      serialEventExit(ser)
+      return retErr
 
-  #except:
-  #  if (ser.isOpen()==True):
-  #   ser.close()
-  #  return 1
+#Testphase 2 - Check module WiFi connection
+    cmd = serialESPCmd.checkWiFiConnection
+    rpiSendCmd(ser, cmd)
+    if rpiReceiveCorrect(ser) == chr(0x01):
+      print 'Receive correct'
+      isErr, val = rpiReceiveData(ser, cmd)
+      if not isErr:
+        print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+    else:
+      print 'Error'
+      retErr = 1
+      serialEventExit(ser)
+      return retErr
+
+#Testphase 3 - Client Test
+    cmd = serialESPCmd.clientTest
+    rpiSendCmd(ser, cmd)
+    if rpiReceiveCorrect(ser) == chr(0x01):
+      print 'Receive correct'
+      isErr, val = rpiReceiveData(ser, cmd)
+      if not isErr:
+        print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+    else:
+      print 'Error'
+      retErr = 1
+      serialEventExit(ser)
+      return retErr
+
+#Testphase 4 - Server Test
+    cmd = serialESPCmd.serverTest
+    rpiSendCmd(ser, cmd)
+    if rpiReceiveCorrect(ser) == chr(0x01):
+      print 'Receive correct'
+      isErr, val = rpiReceiveData(ser, cmd)
+      if not isErr:
+        print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+    else:
+      print 'Error'
+      retErr = 1
+      serialEventExit(ser)
+      return retErr
+
+#Testphase 5 - SoftAP Test
+    cmd = serialESPCmd.softAPTest
+    rpiSendCmd(ser, cmd)
+    if rpiReceiveCorrect(ser) == chr(0x01):
+      print 'Receive correct'
+      isErr, val = rpiReceiveData(ser, cmd)
+      if not isErr:
+        print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+    else:
+      print 'Error'
+      retErr = 1
+      serialEventExit(ser)
+      return retErr
+
+#Testphase 6 - Hardware Test
+    cmd = serialESPCmd.checkBoardIO
+    rpiSendCmd(ser, cmd)
+    if rpiReceiveCorrect(ser) == chr(0x01):
+      print 'Receive correct'
+      isErr, val = rpiReceiveData(ser, cmd)
+      if not isErr:
+        print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+    else:
+      print 'Error'
+      retErr = 1
+      serialEventExit(ser)
+      return retErr
+
+#Testphase 7 - ReadyToQuit
+    cmd = serialESPCmd.readyToQuit
+    rpiSendCmd(ser, cmd)
+    if rpiReceiveCorrect(ser) == chr(0x01):
+      print 'Receive correct'
+      isErr, val = rpiReceiveData(ser, cmd)
+      if not isErr:
+        print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+    else:
+      print 'Error'
+      retErr = 1
+      serialEventExit(ser)
+      return retErr
+
+#End
+    serialEventExit(ser)
+    return retErr
+
+  except:
+    raise
+    if (ser.isOpen()==True):
+     ser.close()
+    return 1
+
+def serialEventExit(ser):
+  print 'closing port: ', ser.port
+  ser.close()
 
 def rpiSendCmd(*args):
   if len(args) == 2:
@@ -96,7 +182,7 @@ def rpiReceiveData(ser, cmd):
        _cmd = ord(inByteString[0])
        if _cmd != cmd:
          print 'incorrect match of command'
-         return 0
+         return (1, 0)
        _data = inByteString[1:_packet_len]
        #print 'Date received: ' ,_data.encode('hex')
        _checksum = ord(inByteString[_packet_len])
@@ -106,9 +192,9 @@ def rpiReceiveData(ser, cmd):
        #print _cal_checksum
        if _checksum != _cal_checksum:
          print 'checksum error'
-         return 0
-       return _convert_data
-  return 0
+         return (1, 0)
+       return (0, _convert_data)
+  return (1, 0)
   
 def main(args):
   return startSerial(args[1])
