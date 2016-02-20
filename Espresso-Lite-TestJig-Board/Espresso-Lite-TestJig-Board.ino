@@ -18,7 +18,6 @@
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
-#include <ESP8266WebServer.h>
 
 const char* station_ssid = "NBCWIFI";
 const char* station_pass = "yeansaw660916";
@@ -310,8 +309,11 @@ void handleIncomingCommand(){
         
         else if(command == 'C'){
             sendResponse(receiveCorrect);
-            if(checkWiFiConnection())
+            uint8_t sendIP[4] = {0};
+            if(checkWiFiConnection()){
               sendResponse(command, operationSuccessful);
+              sendResponse(command, station_IP.toString());
+            }
             else
               sendResponse(command, operationFailure);
         }
@@ -327,9 +329,15 @@ void handleIncomingCommand(){
         else if(command == 'E'){
             sendResponse(receiveCorrect);
             if(serverTest())
+            {
+              delay(1000);
               sendResponse(command, operationSuccessful);
+            }
             else
+            {
+              delay(1000);
               sendResponse(command, operationFailure);
+            }
             ESP.reset(); //reset here to continue on softAP test
         }
           
@@ -384,8 +392,6 @@ void loop(void)
 {
   //temporary test
   
-//  sendResponse('A', 0x31);
-//  Serial.println();
 //  String output = "";
 //  Serial.println("Retrieving ID...");
 //  uint8_t receiveID[4] = {0};
@@ -395,17 +401,6 @@ void loop(void)
 //    Serial.print(receiveID[i], HEX);
 //    Serial.print(' ');
 //  }
-//  
-//  Serial.println();
-//  sendResponse('B', receiveID, sizeof(receiveID));
-//  Serial.println();
-//  uint8_t val[2] = {0x30, 0x34};
-//  sendResponse('C', val, sizeof(val));
-//  Serial.println();
-//  sendResponse(0x02);
-//  Serial.println();
-//  sendResponse('E', 0x32);
-//  Serial.println();
 //  Serial.println("Checking WiFi connection...");
 //  Serial.println("WiFi connection is " + String(checkWiFiConnection()? "":"not ") +"successful");
 //  Serial.println("Checking Client Test...");
