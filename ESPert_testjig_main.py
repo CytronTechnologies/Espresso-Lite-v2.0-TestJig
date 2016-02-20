@@ -39,33 +39,34 @@ try:
     stage = 1
    elif stage == 1:
     stage = 2
-    retry = 2
-    while retry:
-      code = os.system('/home/pi/batch_upload.sh Blink.ino.bin')
-      if code == 0:
-        break
-      retry = retry - 1
-      if retry == 0:
-        err=1
-        continue_bit=0
-        stage = 0
-        current_stage = 0
+#    retry = 2
+#    while retry:
+    code = os.system('/home/pi/batch_upload.sh Espresso-Lite-TestJig-Board.ino.bin')
+#      if code == 0:
+#        break
+#      retry = retry - 1
+#      if retry == 0:
+#        err=1
+#        continue_bit=0
+#        stage = 0
+#        current_stage = 0
    elif stage == 2:
+    os.system('/home/pi/batch_test.sh')
     os.system('sudo python msg_oled.py "Sending command" "to online printer..."')
     stage = 3
    elif stage == 3:
     stage = 0
-    retry = 2
-    while retry:
-      code = os.system('/home/pi/batch_upload.sh Blink.ino.bin')
-      if code == 0:
-        break
-      retry = retry - 1
-      if retry == 0:
-        err=1
-        continue_bit=0
-        stage = 2
-        current_stage = 2
+#    retry = 2
+#    while retry:
+    code = os.system('/home/pi/batch_upload.sh _2000_ESPert_workshop.ino.bin')
+#      if code == 0:
+#        break
+#      retry = retry - 1
+#      if retry == 0:
+#        err=1
+#        continue_bit=0
+#        stage = 2
+#        current_stage = 2
     continue_bit = 0
    time.sleep(0.5)
   if GPIO.input(24) == 0:
@@ -85,7 +86,7 @@ try:
      time.sleep(1)
      os.system('sudo shutdown -hP now')
      raw_input()
-  if (current_stage != stage) and (err==0):
+  if (current_stage != stage):
     with canvas(device) as draw:
      draw.text((0, 0), 'Currently at', font=font2, fill=255)
      if stage>0: 

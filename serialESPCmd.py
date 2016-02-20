@@ -15,4 +15,5 @@ checkBoardIO = 0x47
 receiveCorrect = 0x01
 receiveError = 0x02
 operationSuccessful = 0x31
-timeOut = 0x32
+operationFailure = 0x32
+timeOut = 0x33
