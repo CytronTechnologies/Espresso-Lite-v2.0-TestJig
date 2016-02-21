@@ -14,120 +14,124 @@ board_tcp_ip = ''
 
 def startSerial(serial_port):
   try:
-    print 'opening port: ', serial_port
+    #print 'Opening port: ', serial_port
     port = serial.Serial(serial_port, baudrate=115200, timeout=3.0)
     #this delay is to avoid sending of gibberish bytes to RPi during module startup
     time.sleep(2)
     #flush gibberish data
     port.flushInput()
-    return handlingSerialEvent(port)
+    if(handlingSerialEvent(port)==0):
+      return 0
+    else:
+      print 'From %s: Testing process halted' % serial_port
+      return -1
   except:
+    print 'From %s: Failed to open port' % serial_port
     return -1
 
 def handlingSerialEvent(ser):
   retErr = 0
   try:
 #Testphase 1 - Retrieve unique ID
-    print 'Retrieving ID'
+    process = 'Retrieving ID'
     cmd = serialESPCmd.retrieveInfo
     rpiSendCmd(ser, cmd)
     if rpiReceiveCorrect(ser) == serialESPCmd.receiveCorrect:
-      print 'Receive correct'
       isErr, val = rpiReceiveData(ser, cmd)
       if not isErr and val[0]==serialESPCmd.operationSuccessful:
-        print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+        #print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+        print 'From %s: %s:: Operation successful' %(ser.port, process)
         isErr, val = rpiReceiveData(ser, cmd)
         if not isErr and len(val) == 4:
-          print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+          #print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
           board_id = sum([ (val[x]<<(x<<3)) for x in range(0, len(val)) ])
-          #fileName = '/home/pi/boards/'+str(board_id)+'_Log.txt'
-          #os.system('rm -r '+fileName)
-          #os.system('touch '+fileName)
-          #print board_id
-          os.system('echo '+str(board_id)+' >> /home/pi/log.txt')
+          print 'From %s: %s:: Obtained board ID: %i' %(ser.port,process, board_id)
         else:
-          print 'Fail to retrieve board ID'
+          print 'From %s: %s:: Fail to retrieve board ID' %(ser.port, process)
           retErr = -1
           serialEventExit(ser)
           return retErr
       else:
-        print 'Timeout'
+        print 'From %s: %s:: Operation failure, timeout or unexpected response' % (ser.port, process)
         retErr = -1
         serialEventExit(ser)
         return retErr
     else:
-      print 'Error'
+      print 'From %s: %s:: Receive packet error' %(ser.port, process)
       retErr = -1
       serialEventExit(ser)
       return retErr
     time.sleep(1)
 #Testphase 2 - Check module WiFi connection
-    print 'Check module WiFi connection'
+    process = 'Check module WiFi connection'
     cmd = serialESPCmd.checkWiFiConnection
     rpiSendCmd(ser, cmd)
     if rpiReceiveCorrect(ser) == serialESPCmd.receiveCorrect:
-      print 'Receive correct'
+      #print 'Receive correct'
       isErr, val = rpiReceiveData(ser, cmd, 20)
       if not isErr and val[0]==serialESPCmd.operationSuccessful:
-        print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+        #print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+        print 'From %s: %s:: Operation successful' % (ser.port, process)
         isErr, val = rpiReceiveData(ser, cmd)
         if not isErr:
           board_tcp_ip = ''.join(chr(val[x]) for x in range(0, len(val)))
-          print board_tcp_ip
+          print 'From %s: %s:: Obtained IP: %s' %(ser.port, process, board_tcp_ip)
         else:
-          print 'Failed to retrieve TCP IP'
+          print 'From %s: %s:: Failed to retrieve TCP IP' % (ser.port, process)
           retErr = -1
           serialEventExit(ser)
           return retErr
       else:
-        print 'Timeout'
+        print 'From %s: %s:: Operation failure, timeout or unexpected response' % (ser.port, process)
         retErr = -1
         serialEventExit(ser)
         return retErr
     else:
-      print 'Error'
+      print 'From %s: %s:: Receive packet error' % (ser.port, process)
       retErr = -1
       serialEventExit(ser)
       return retErr
     time.sleep(1)
 #Testphase 3 - Client Test
-    print 'Client test'
+    process = 'Client test'
     cmd = serialESPCmd.clientTest
     rpiSendCmd(ser, cmd)
     if rpiReceiveCorrect(ser) == serialESPCmd.receiveCorrect:
-      print 'Receive correct'
+      #print 'Receive correct'
       isErr, val = rpiReceiveData(ser, cmd, 10)
       if not isErr and val[0]==serialESPCmd.operationSuccessful:
-        print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+        #print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+        print 'From %s: %s:: Operation successful' % (ser.port, process)
       else:
-        print 'Timeout'
+        print 'From %s: %s:: Operation failure, timeout or unexpected response' % (ser.port, process)
         retErr = -1
         serialEventExit(ser)
         return retErr
     else:
-      print 'Error'
+      print 'From %s: %s:: Receive packet error' % (ser.port, process)
       retErr = -1
       serialEventExit(ser)
       return retErr
     time.sleep(1)
 #Testphase 4 - Server Test
-    print 'Server test'
+    process = 'Server test'
     cmd = serialESPCmd.serverTest
     rpiSendCmd(ser, cmd)
     if rpiReceiveCorrect(ser) == serialESPCmd.receiveCorrect:
-      print 'Receive correct'
+      #print 'Receive correct'
       time.sleep(0.5) #give 0.5 seconds for module server configuration
       connectToServer(board_tcp_ip)
       isErr, val = rpiReceiveData(ser, cmd, 30)
       if not isErr and val[0]==serialESPCmd.operationSuccessful:
-        print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+        #print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+        print 'From %s: %s:: Operation successful' % (ser.port, process)
       else:
-        print 'Timeout'
+        print 'From %s: %s:: Operation failure, timeout or unexpected response' %(ser.port, process)
         retErr = -1
         serialEventExit(ser)
         return retErr
     else:
-      print 'Error'
+      print 'From %s: %s:: Receive packet error' % (ser.port, process)
       retErr = -1
       serialEventExit(ser)
       return retErr
@@ -154,41 +158,43 @@ def handlingSerialEvent(ser):
 #     return retErr
 
 #Testphase 6 - Hardware Test
-    print 'Hardware Test'
+    process = 'Hardware Test'
     cmd = serialESPCmd.checkBoardIO
     rpiSendCmd(ser, cmd)
     if rpiReceiveCorrect(ser) == serialESPCmd.receiveCorrect:
-      print 'Receive correct'
+      #print 'Receive correct'
       isErr, val = rpiReceiveData(ser, cmd, 30)
       if not isErr and val[0]==serialESPCmd.operationSuccessful:
-        print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+        #print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+        print 'From %s: %s:: Operation successful' % (ser.port, process)
       else:
-        print 'Timeout'
+        print 'From %s: %s:: Operation failure, timeout or unexpected response' % (ser.port, process)
         retErr = -1
         serialEventExit(ser)
         return retErr
     else:
-      print 'Error'
+      print 'From %s: %s:: Receive packet error' % (ser.port,process)
       retErr = -1
       serialEventExit(ser)
       return retErr
 
 #Testphase 7 - ReadyToQuit
-    print 'ready to disconnect with module'
+    process = 'Disconnecting module'
     cmd = serialESPCmd.readyToQuit
     rpiSendCmd(ser, cmd)
     if rpiReceiveCorrect(ser) == serialESPCmd.receiveCorrect:
-      print 'Receive correct'
+      #print 'Receive correct'
       isErr, val = rpiReceiveData(ser, cmd)
       if not isErr and val[0]==serialESPCmd.operationSuccessful:
-        print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+        #print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+        print 'From %s: %s:: Operation successful' % (ser.port, process)
       else:
-        print 'Timeout'
+        print 'From %s: %s:: Operation failure, timeout or unexpected response' %(ser.port, process)
         retErr = -1
         serialEventExit(ser)
         return retErr
     else:
-      print 'Error'
+      print 'From %s: %s:: Receive packet error' % (ser.port, process)
       retErr = -1
       serialEventExit(ser)
       return retErr
@@ -199,12 +205,13 @@ def handlingSerialEvent(ser):
 
   except:
     raise
+    print 'From %s: Unexpected Error' % ser.port
     if (ser.isOpen()==True):
      ser.close()
     return -1
 
 def serialEventExit(ser):
-  print 'closing port: ', ser.port
+  #print 'closing port: ', ser.port
   ser.close()
 
 def connectToServer(ip):
@@ -255,11 +262,6 @@ def rpiReceiveCorrect(ser):
      #print 'receive success'
      #print inByteString[3].encode('hex')
      _header, _flag, _packet_len, _response, _checksum = [ord(inByteString[x]) for x in range(0, 5)]
-     #_header = ord(inByteString[0])
-     #_flag = ord(inByteString[1])
-     #_packet_len = ord(inByteString[2])
-     #_response = ord(inByteString[3])
-     #_checksum = ord(inByteString[4])
      _cal_cs = (170 + _flag + _packet_len + _response) % 256
      if _header == 0x5c and _flag == 0x30 and _packet_len == 1 and _checksum == _cal_cs: 
        return _response
