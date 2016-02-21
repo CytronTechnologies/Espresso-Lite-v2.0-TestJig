@@ -1,13 +1,13 @@
 #!/bin/bash
 
-cd /
-cd home/pi
+filepath=/home/pi/TestJig
+cd "$filepath"
 
 #define variables here
-dir=/home/pi/status
+dir="$filepath"/status
 #
 
-sudo python msg_oled.py "Uploading user" " program now..." "" "Program name:" "_2000_ESPert_" "workshop.ino.bin"
+sudo python msg_oled.py "Uploading program now..." "" "Program name:" "_2000_ESPert_" "workshop.ino.bin"
 
 dev0="Pass"
 dev1="Pass"

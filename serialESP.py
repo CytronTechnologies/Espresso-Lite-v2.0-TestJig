@@ -5,21 +5,24 @@ import os
 import serial
 import time
 import array
-import socket
 import urllib
 import serialESPCmd
 
 board_id = 0
 board_tcp_ip = ''
+#fileName = ''
 
 def startSerial(serial_port):
-  print 'opening port: ', serial_port
-  port = serial.Serial(serial_port, baudrate=115200, timeout=3.0)
-  #this delay is to avoid sending of gibberish bytes to RPi during module startup
-  time.sleep(2)
-  #flush gibberish data
-  port.flushInput()
-  return handlingSerialEvent(port)
+  try:
+    print 'opening port: ', serial_port
+    port = serial.Serial(serial_port, baudrate=115200, timeout=3.0)
+    #this delay is to avoid sending of gibberish bytes to RPi during module startup
+    time.sleep(2)
+    #flush gibberish data
+    port.flushInput()
+    return handlingSerialEvent(port)
+  except:
+    return -1
 
 def handlingSerialEvent(ser):
   retErr = 0
@@ -37,20 +40,24 @@ def handlingSerialEvent(ser):
         if not isErr and len(val) == 4:
           print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
           board_id = sum([ (val[x]<<(x<<3)) for x in range(0, len(val)) ])
-          print board_id
+          #fileName = '/home/pi/boards/'+str(board_id)+'_Log.txt'
+          #os.system('rm -r '+fileName)
+          #os.system('touch '+fileName)
+          #print board_id
+          os.system('echo '+str(board_id)+' >> /home/pi/log.txt')
         else:
           print 'Fail to retrieve board ID'
-          retErr = 1
+          retErr = -1
           serialEventExit(ser)
           return retErr
       else:
         print 'Timeout'
-        retErr = 1
+        retErr = -1
         serialEventExit(ser)
         return retErr
     else:
       print 'Error'
-      retErr = 1
+      retErr = -1
       serialEventExit(ser)
       return retErr
     time.sleep(1)
@@ -69,17 +76,17 @@ def handlingSerialEvent(ser):
           print board_tcp_ip
         else:
           print 'Failed to retrieve TCP IP'
-          retErr = 1
+          retErr = -1
           serialEventExit(ser)
           return retErr
       else:
         print 'Timeout'
-        retErr = 1
+        retErr = -1
         serialEventExit(ser)
         return retErr
     else:
       print 'Error'
-      retErr = 1
+      retErr = -1
       serialEventExit(ser)
       return retErr
     time.sleep(1)
@@ -94,12 +101,12 @@ def handlingSerialEvent(ser):
         print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
       else:
         print 'Timeout'
-        retErr = 1
+        retErr = -1
         serialEventExit(ser)
         return retErr
     else:
       print 'Error'
-      retErr = 1
+      retErr = -1
       serialEventExit(ser)
       return retErr
     time.sleep(1)
@@ -116,35 +123,35 @@ def handlingSerialEvent(ser):
         print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
       else:
         print 'Timeout'
-        retErr = 1
+        retErr = -1
         serialEventExit(ser)
         return retErr
     else:
       print 'Error'
-      retErr = 1
+      retErr = -1
       serialEventExit(ser)
       return retErr
     time.sleep(2)
 #Testphase 5 - SoftAP Test
-    print 'SoftAP test'
+#    print 'SoftAP test'
     ser.flushInput()
-    cmd = serialESPCmd.softAPTest
-    rpiSendCmd(ser, cmd)
-    if rpiReceiveCorrect(ser) == serialESPCmd.receiveCorrect:
-      print 'Receive correct'
-      isErr, val = rpiReceiveData(ser, cmd, 120)
-      if not isErr and val[0]==serialESPCmd.operationSuccessful:
-        print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
-      else:
-        print 'Timeout'
-        retErr = 1
-        serialEventExit(ser)
-        return retErr
-    else:
-      print 'Error'
-      retErr = 1
-      serialEventExit(ser)
-      return retErr
+#    cmd = serialESPCmd.softAPTest
+#    rpiSendCmd(ser, cmd)
+#    if rpiReceiveCorrect(ser) == serialESPCmd.receiveCorrect:
+#      print 'Receive correct'
+#      isErr, val = rpiReceiveData(ser, cmd, 120)
+#      if not isErr and val[0]==serialESPCmd.operationSuccessful:
+#        print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
+#      else:
+#        print 'Timeout'
+#        retErr = -1
+#        serialEventExit(ser)
+#        return retErr
+#    else:
+#      print 'Error'
+#      retErr = -1
+#      serialEventExit(ser)
+#     return retErr
 
 #Testphase 6 - Hardware Test
     print 'Hardware Test'
@@ -157,12 +164,12 @@ def handlingSerialEvent(ser):
         print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
       else:
         print 'Timeout'
-        retErr = 1
+        retErr = -1
         serialEventExit(ser)
         return retErr
     else:
       print 'Error'
-      retErr = 1
+      retErr = -1
       serialEventExit(ser)
       return retErr
 
@@ -177,12 +184,12 @@ def handlingSerialEvent(ser):
         print 'Data received: ', ' '.join(hex(val[x]) for x in range(0, len(val)))
       else:
         print 'Timeout'
-        retErr = 1
+        retErr = -1
         serialEventExit(ser)
         return retErr
     else:
       print 'Error'
-      retErr = 1
+      retErr = -1
       serialEventExit(ser)
       return retErr
 
@@ -194,7 +201,7 @@ def handlingSerialEvent(ser):
     raise
     if (ser.isOpen()==True):
      ser.close()
-    return 1
+    return -1
 
 def serialEventExit(ser):
   print 'closing port: ', ser.port
