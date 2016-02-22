@@ -1,0 +1,9 @@
+Hello this is the first log file created
+testing added a line
+
+testing added second line
+
+testing added third line
+testing added 4th line
+641853
+641852

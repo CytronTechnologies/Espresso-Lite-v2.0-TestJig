@@ -1,11 +1,10 @@
 #!/bin/bash
 
-cd /
-cd home/pi
+filepath=/home/pi/TestJig
+cd "$filepath"
 
 #define variables here
-dir=$(mktemp -d)
-exit_value=0
+dir="$filepath"/status
 max_dev=6
 #
 
@@ -35,25 +34,13 @@ do
   var="dev$val"
   if [ "$line" -eq "255" ];then
    declare "$var"="Fail"
-   exit_value=1
   fi
   #echo "${!var}"
-  #echo "$exit_value"
  done <"$file"
  ((val=val+1))
 done
-
-rm -r "$dir"
 
 #display result
 sudo python msg_oled.py "All test completed" "" " 1 : $dev1     4 : $dev4" " 2 : $dev2     5 : $dev5" " 3 : $dev3     6 : $dev6"
 
 cd /
-
-if [ "$exit_value" -eq 0 ];then
-  (exit 0)
-else
-  (exit 1)
-fi
-#exit 2
-#echo $?

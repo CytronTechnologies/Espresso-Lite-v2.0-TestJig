@@ -5,6 +5,10 @@ from oled.device import ssd1306, sh1106
 from oled.render import canvas
 from PIL import ImageFont, ImageDraw, Image
 
+filepath = '/home/pi/TestJig'
+test_program = 'Espresso-Lite-TestJig-Board.ino.bin'
+user_program = '_2000_ESPert_workshop.ino.bin'
+
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(18, GPIO.OUT)
@@ -27,7 +31,7 @@ err=0
 
 GPIO.output(18, GPIO.HIGH)
 with canvas(device) as draw:
-  logo = Image.open('ssd1306/examples/images/ESPert_logo.bmp')
+  logo = Image.open('ESPert_logo.bmp')
   draw.bitmap((32, 0), logo, fill=1)
 time.sleep(2)
 
@@ -39,34 +43,14 @@ try:
     stage = 1
    elif stage == 1:
     stage = 2
-#    retry = 2
-#    while retry:
-    code = os.system('/home/pi/batch_upload.sh Espresso-Lite-TestJig-Board.ino.bin')
-#      if code == 0:
-#        break
-#      retry = retry - 1
-#      if retry == 0:
-#        err=1
-#        continue_bit=0
-#        stage = 0
-#        current_stage = 0
+    os.system(filepath+'/batch_upload.sh '+test_program)
    elif stage == 2:
-    os.system('/home/pi/batch_test.sh')
+    os.system(filepath+'/batch_test.sh')
     os.system('sudo python msg_oled.py "Sending command" "to online printer..."')
     stage = 3
    elif stage == 3:
     stage = 0
-#    retry = 2
-#    while retry:
-    code = os.system('/home/pi/batch_upload.sh _2000_ESPert_workshop.ino.bin')
-#      if code == 0:
-#        break
-#      retry = retry - 1
-#      if retry == 0:
-#        err=1
-#        continue_bit=0
-#        stage = 2
-#        current_stage = 2
+    os.system(filepath+'/batch_upload2.sh '+user_program)
     continue_bit = 0
    time.sleep(0.5)
   if GPIO.input(24) == 0:
