@@ -8,11 +8,11 @@ if not args:
   sys.exit()
 
 device = ssd1306(port=1, address=0x3C)
-font=ImageFont.truetype('/home/pi/ssd1306/fonts/C&C Red Alert [INET].ttf', 12)
+font=ImageFont.truetype('/home/pi/arial.ttf', 14)
 
 with canvas(device) as draw:
    count = 0
    for arg in args:
      draw.text((0, count),  str(arg),  font=font, fill=255)
-     count = count + 12
+     count = count + 14
 
