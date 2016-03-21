@@ -77,7 +77,7 @@ try:
     time.sleep(1)
     count = count - 1
     if count == 0:
-     os.system('sudo python msg_oled.py "Entering system" "shutdown now..." "" "Wait until green LED off" "before turning off power"')
+     os.system('sudo python msg_oled.py "Shutdown now..." "" "Wait till green LED" "off"')
      #os.system('echo entering system shutdown...')
      time.sleep(1)
      os.system('sudo shutdown -hP now')
