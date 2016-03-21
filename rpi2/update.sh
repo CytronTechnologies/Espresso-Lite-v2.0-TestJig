@@ -13,7 +13,6 @@ if [[ $? -eq 0 ]]; then
 	cd
 else
         echo "Offline"
-        sudo python "$display" "Internet" "connection" "error"
         exit 0
 fi
 
