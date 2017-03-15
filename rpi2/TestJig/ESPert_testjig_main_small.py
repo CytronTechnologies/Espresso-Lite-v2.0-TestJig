@@ -52,7 +52,7 @@ try:
     if(wifi==0):
      draw.text((0,33), 'Cytron Yes', font=font3, fill=255)
     elif(wifi==1):
-     draw.text((0,33), 'Cytron-Asus', font=font3, fill=255)
+     draw.text((0,33), 'Cytron', font=font3, fill=255)
    time.sleep(1.5)
    stage = 0
   if (GPIO.input(23) == 0 or continue_bit == 1) and not err:
