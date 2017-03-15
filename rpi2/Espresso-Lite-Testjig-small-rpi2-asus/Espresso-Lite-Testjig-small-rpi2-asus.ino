@@ -68,7 +68,7 @@ bool checkWiFiConnection(){
   long _currentTime;
   WiFi.mode(WIFI_STA);
   
-  WiFi.begin("Cytron-Asus", station_pass);
+  WiFi.begin("Cytron", station_pass);
   _currentTime = millis();
   while (WiFi.status() != WL_CONNECTED) {
     delay(100);
@@ -81,35 +81,12 @@ bool checkWiFiConnection(){
   {
     display.clear();
     display.drawString(0,0,"Connected to");
-    display.drawString(0,16,"Cytron-Asus");
+    display.drawString(0,16,"Cytron");
     display.display();
     delay(1000);
     return true;
   }
 
-  if(retry)
-  {
-    retry = false;
-    WiFi.begin("Cytron-R&D", station_pass);
-    _currentTime = millis();
-    while (WiFi.status() != WL_CONNECTED) {
-      delay(100);
-      if(millis() - _currentTime > timeout){
-        retry = true;
-        break;
-      }
-    }
-    if(!retry)
-    {
-      display.clear();
-      display.drawString(0,0,"Connected to");
-      display.drawString(0,16,"Cytron-R&D");
-      display.display();
-      delay(1000);
-      return true;
-    }
-  }
- 
   if(retry)
   {
     retry = false;
