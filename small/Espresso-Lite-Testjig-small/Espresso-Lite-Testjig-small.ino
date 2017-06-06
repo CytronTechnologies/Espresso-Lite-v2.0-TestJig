@@ -1,7 +1,7 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <Wire.h>
-#include "ssd1306_i2c.h"
+#include <SSD1306.h>
 #include "images.h"
 
 IPAddress station_IP(0,0,0,0);
