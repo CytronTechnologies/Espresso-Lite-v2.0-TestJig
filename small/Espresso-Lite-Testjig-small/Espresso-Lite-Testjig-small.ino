@@ -5,7 +5,7 @@
 #include "images.h"
 
 IPAddress station_IP(0,0,0,0);
-const char* station_ssid = "Cytron-Asus";
+const char* station_ssid = "Cytron";
 const char* station_pass = "f5f4f3f2f1";
 uint32_t uniqueID;
 const char* devid = "vDB7FF981EFBF784";
