@@ -32,7 +32,7 @@ font4 = ImageFont.truetype(font_dir2, 12)
 stage = 0
 current_stage = 1
 continue_bit = 0
-wifi = 0
+wifi = 1
 err=0
 
 GPIO.output(18, GPIO.HIGH)
