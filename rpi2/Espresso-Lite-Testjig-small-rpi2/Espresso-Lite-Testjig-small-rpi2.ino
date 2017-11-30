@@ -68,7 +68,7 @@ bool checkWiFiConnection(){
   long _currentTime;
   WiFi.mode(WIFI_STA);
   
-  WiFi.begin("Cytron Yes", "cytrontechnologiessdnbhd");
+  WiFi.begin("Cytron-Production", "cytronproduction");
   _currentTime = millis();
   while (WiFi.status() != WL_CONNECTED) {
     delay(100);
