@@ -50,7 +50,7 @@ try:
    with canvas(device) as draw:
     draw.text((0,16), 'WiFi selected:', font=font3, fill=255)
     if(wifi==0):
-     draw.text((0,33), 'Cytron Yes', font=font3, fill=255)
+     draw.text((0,33), 'Cytron Prod', font=font3, fill=255)
     elif(wifi==1):
      draw.text((0,33), 'Cytron', font=font3, fill=255)
    time.sleep(1.5)
